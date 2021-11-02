@@ -14,7 +14,7 @@ class tag_controller extends Controller
      */
     public function index()
     {
-        //
+        return tag::get();
     }
 
     /**
