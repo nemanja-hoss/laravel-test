@@ -21,12 +21,26 @@ class image_tag_seeder extends Seeder
         $images = image::get();
         $users = User::get();
 
-        $this->add_tags_to_hundred_images($tags,$users,$images);
-        $this->remove_from_ten_add_to_five($tags,$users,$images);
-
-        
+        $this->add_tags_to_hundred_images($tags, $users, $images);
+        $this->remove_from_ten($tags, $users, $images);
+        $this->add_to_ten($tags, $users, $images);
     }
-    private function remove_from_ten_add_to_five($tags, $users, $images)
+    private function add_to_ten($tags, $users, $images)
+    {
+        for ($i = 0; $i < count($tags); $i++) {
+            for ($j = ($i * 100) + 5; $j < (($i * 100) + 15); $j++) {
+                image_tag::factory()->state([
+                    'user_id' => $i < 5 ? $users->last()->id : $users->first()->id,
+                    'image_id' => $images[$j]->id,
+                    'tag_id' => ($i + 1) == count($tags) ? $tags[0]->id : $tags[$i + 1]->id,
+                    'added' => true,
+                    'last' => true,
+                    'user_last' => true,
+                ])->create();
+            }
+        }
+    }
+    private function remove_from_ten($tags, $users, $images)
     {
         for ($i = 0; $i < count($tags); $i++) {
             for ($j = $i * 100; $j < (($i * 100) + 10); $j++) {
@@ -38,16 +52,6 @@ class image_tag_seeder extends Seeder
                     'last' => true,
                     'user_last' => true,
                 ])->create();
-                if ($j > (($i * 100) + 4)) {
-                    image_tag::factory()->state([
-                        'user_id' => $i < 5 ? $users->last()->id : $users->first()->id,
-                        'image_id' => $images[$j]->id,
-                        'tag_id' => ($i + 1) == count($tags) ? $tags[0]->id : $tags[$i + 1]->id,
-                        'added' => true,
-                        'last' => true,
-                        'user_last' => true,
-                    ])->create();
-                }
             }
         }
     }
@@ -60,7 +64,7 @@ class image_tag_seeder extends Seeder
                     'image_id' => $images[$j]->id,
                     'tag_id' => $tags[$i]->id,
                     'added' => true,
-                    'last' => $j <= (($i * 100) + 9)?false:true,
+                    'last' => $j <= (($i * 100) + 9) ? false : true,
                     'user_last' => true,
                 ])->create();
             }
